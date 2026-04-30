@@ -1,44 +1,62 @@
-# arreda_frontend
+# 🚗 Arreda - Frontend Web
 
-This template should help get you started developing with Vue 3 in Vite.
+> Interface moderna, responsiva e intuitiva para o sistema de caronas **Arreda**. Desenvolvida com Vue.js 3 para proporcionar a melhor experiência ao usuário.
 
-## Recommended IDE Setup
+---
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## 📋 Sobre o Frontend
+Esta camada é responsável por toda a interação com o usuário. Nela, motoristas podem cadastrar rotas e passageiros podem buscar viagens em tempo real. O foco é simplicidade e rapidez.
 
-## Recommended Browser Setup
+### 🛠️ Tecnologias Utilizadas
+- **Framework:** [Vue.js 3](https://vuejs.org/) (Composition API)
+- **Linguagem:** TypeScript
+- **Ferramenta de Build:** Vite
+- **Gerenciamento de Estado:** Pinia (substituto moderno do Vuex)
+- **Navegação:** Vue Router
+- **Estilização:** Tailwind CSS 
+- **Consumo de API:** Axios
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+---
 
-## Customize configuration
+## 🏗️ Estrutura do Projeto
+- **`src/views/`**: Páginas principais da aplicação (Home, Login, Perfil).
+- **`src/components/`**: Componentes reutilizáveis (Inputs, Cards de Carona, Botões).
+- **`src/services/`**: Configuração do Axios para chamadas ao backend Java.
+- **`src/stores/`**: Gerenciamento de dados globais, como o token de autenticação.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+---
 
-## Project Setup
+## 🚀 Como Executar o Projeto
 
-```sh
-npm install
-```
+### Pré-requisitos
+- **Node.js** (v18 ou superior)
+- **npm** (ou yarn)
 
-### Compile and Hot-Reload for Development
+### Passos para rodar
+1.  **Clone o repositório:**
+    ```bash
+    git clone [https://github.com/SEU_USUARIO/arreda-frontend.git](https://github.com/SEU_USUARIO/arreda-frontend.git)
+    ```
+2.  **Instale as dependências:**
+    ```bash
+    npm install
+    ```
+3.  **Inicie o servidor de desenvolvimento:**
+    ```bash
+    npm run dev
+    ```
+4.  **Acesse no navegador:**
+    A aplicação estará em `http://localhost:5173`.
 
-```sh
-npm run dev
-```
+---
 
-### Compile and Minify for Production
+## 🔗 Conexão com o Backend
+O frontend está configurado para se comunicar com a API Java rodando em `http://localhost:8080`. Certifique-se de que o Docker (PostgreSQL) e o Spring Boot estejam ativos.
 
-```sh
-npm run build
-```
+---
 
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+## 👥 Equipe
+- **Carlos Eduardo** - *Lider da equipe*
+- **João Vieira** - *Responsável técnico*
+- **João Vitor** -*Responsável pela apresentação*
+- **Victor Fernandes** - *Responsável pela documentação* 
