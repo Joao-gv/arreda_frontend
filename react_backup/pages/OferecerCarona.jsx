@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
-import api from '../services/api'; // <-- Importando nossa conexão com o Spring Boot
+import api from '../../src/services/api'; // <-- Importando nossa conexão com o Spring Boot
 
 const caronaSchema = z.object({
   origem: z.string().min(3, 'A origem deve ter pelo menos 3 letras'),
