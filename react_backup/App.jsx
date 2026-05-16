@@ -2,14 +2,14 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
-import Navbar from './components/Navbar';
-import Footer from './components/Footer'; // <-- Importamos o Footer
-import PrivateRoute from './components/PrivateRoute'; // <-- Importamos a Proteção
+import Navbar from '../react_backup/components/Navbar';
+import Footer from '../react_backup/components/Footer'; // <-- Importamos o Footer
+import PrivateRoute from '../react_backup/components/PrivateRoute'; // <-- Importamos a Proteção
 
-import Home from './pages/Home';
-import Login from './pages/Login';
-import OferecerCarona from './pages/OferecerCarona';
-import BuscarCaronas from './pages/BuscarCaronas';
+import Home from '../react_backup/pages/Home';
+import Login from '../react_backup/pages/Login';
+import OferecerCarona from '../react_backup/pages/OferecerCarona';
+import BuscarCaronas from '../react_backup/pages/BuscarCaronas';
 
 function App() {
   return (
