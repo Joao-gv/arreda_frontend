@@ -61,17 +61,17 @@
                 <Car class="text-gray-400 mr-3" :size="24" />
                 <select v-model="carona.veiculoId" required class="w-full bg-transparent outline-none text-gray-700 appearance-none">
                   <option value="" disabled selected>Selecione um carro...</option>
-                  <option value="1">Chevrolet Onix (ABC-1234)</option>
-                  <option value="2">Fiat Uno (XYZ-9876)</option>
+                  <option v-for="v in veiculos" :key="v.id" :value="v.id">{{ v.marca }} {{ v.modelo }} ({{ v.placa }})</option>
                 </select>
               </div>
+              <p v-if="veiculos.length === 0" class="text-xs text-red-500 mt-1">Nenhum veículo cadastrado.</p>
             </div>
           </div>
 
           <div class="pt-6 border-t border-gray-100 mt-6">
-            <button type="submit" class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-lg font-bold text-white bg-arreda-green hover:bg-arreda-dark focus:outline-none transition">
+            <button type="submit" :disabled="loading || veiculos.length === 0" class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-lg font-bold text-white bg-arreda-green hover:bg-arreda-dark focus:outline-none transition disabled:opacity-50">
               <CheckCircle :size="24" />
-              Publicar Carona
+              {{ loading ? 'Publicando...' : 'Publicar Carona' }}
             </button>
           </div>
 
@@ -82,19 +82,42 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToast } from '../composables/useToast.js'
 import { MapPin, CalendarClock, Users, Banknote, Car, CheckCircle } from 'lucide-vue-next'
+import { caronaService } from '../services/caronaService.js'
+import { usuarioService } from '../services/usuarioService.js'
 
 const { dispararToast } = useToast()
+const router = useRouter()
 const carona = ref({ origem: '', destino: '', dataHoraPartida: '', vagasDisponiveis: '', valorSugerido: '', veiculoId: '' })
+const veiculos = ref([])
+const loading = ref(false)
 
-const publicarCarona = () => {
-  console.log('Carona pronta para o backend:', carona.value)
-  
-  // 2. Troque para o Toast bonito
-  dispararToast('Sua carona foi publicada com sucesso!', 'success')
-  
-  carona.value = { origem: '', destino: '', dataHoraPartida: '', vagasDisponiveis: '', valorSugerido: '', veiculoId: '' }
+const carregarVeiculos = async () => {
+  try {
+    veiculos.value = await usuarioService.getMeusVeiculos()
+  } catch (error) {
+    dispararToast('Erro ao carregar veículos. Você tem perfil de motorista?', 'error')
+    console.error(error)
+  }
 }
+
+const publicarCarona = async () => {
+  loading.value = true
+  try {
+    await caronaService.publicar(carona.value)
+    dispararToast('Sua carona foi publicada com sucesso!', 'success')
+    router.push('/minhas-reservas')
+  } catch (error) {
+    dispararToast(error.response?.data?.erro || error.response?.data || 'Erro ao publicar carona', 'error')
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  carregarVeiculos()
+})
 </script>

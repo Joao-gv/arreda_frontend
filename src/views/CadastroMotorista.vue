@@ -39,11 +39,8 @@
               <input v-model="cnh" type="text" maxlength="11" placeholder="Apenas números" required class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-arreda-green" />
             </div>
             <div>
-              <label class="block text-sm font-bold text-gray-700 mb-2">Categoria</label>
-              <select v-model="categoria" required class="w-full p-3 border border-gray-300 rounded-xl outline-none bg-white">
-                <option value="B">B</option>
-                <option value="AB">AB</option>
-              </select>
+              <label class="block text-sm font-bold text-gray-700 mb-2">Validade</label>
+              <input v-model="validadeCnh" type="date" required class="w-full p-3 border border-gray-300 rounded-xl outline-none bg-white text-gray-700" />
             </div>
           </div>
 
@@ -51,17 +48,17 @@
             <div class="border-2 border-dashed border-gray-300 rounded-2xl p-4 text-center bg-gray-50 flex flex-col items-center justify-center min-h-[140px]">
               <ImagePlus class="text-gray-400 mb-1" :size="28" />
               <span class="text-xs font-bold text-gray-600">Foto Frente</span>
-              <input type="file" accept="image/*" class="mt-2 text-xs" required />
+              <input type="file" accept="image/*" class="mt-2 text-xs" />
             </div>
             <div class="border-2 border-dashed border-gray-300 rounded-2xl p-4 text-center bg-gray-50 flex flex-col items-center justify-center min-h-[140px]">
               <ImagePlus class="text-gray-400 mb-1" :size="28" />
               <span class="text-xs font-bold text-gray-600">Foto Verso</span>
-              <input type="file" accept="image/*" class="mt-2 text-xs" required />
+              <input type="file" accept="image/*" class="mt-2 text-xs" />
             </div>
           </div>
 
-          <button type="submit" class="w-full bg-arreda-green text-white font-bold py-4 rounded-xl hover:bg-arreda-dark transition shadow-md">
-            Enviar Documentos para Análise
+          <button type="submit" :disabled="loading" class="w-full bg-arreda-green text-white font-bold py-4 rounded-xl hover:bg-arreda-dark transition shadow-md disabled:opacity-50">
+            {{ loading ? 'Enviando...' : 'Enviar Documentos para Análise' }}
           </button>
         </form>
       </div>
@@ -72,21 +69,35 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToast } from '../composables/useToast.js'
 import { Clock, CheckCircle, ImagePlus } from 'lucide-vue-next'
+import { usuarioService } from '../services/usuarioService.js'
 
 const { dispararToast } = useToast()
+const router = useRouter()
 
 const statusCnh = ref(localStorage.getItem('@arreda:statusCnh'))
 const cnh = ref('')
-const categoria = ref('B')
+const validadeCnh = ref('')
+const loading = ref(false)
 
-const enviarCadastroMotorista = () => {
-  // Mudamos o status para Pendente no banco local simulado
-  localStorage.setItem('@arreda:statusCnh', 'PENDENTE')
-  statusCnh.value = 'PENDENTE'
-  
-  // USANDO O TOAST BONITO NO LUGAR DO ALERT!
-  dispararToast('Documentos enviados! Aguardando aprovação dos administradores.', 'success')
+const enviarCadastroMotorista = async () => {
+  loading.value = true
+  try {
+    await usuarioService.criarPerfilMotorista({
+      cnh: cnh.value,
+      validadeCnh: validadeCnh.value
+    })
+    
+    localStorage.setItem('@arreda:statusCnh', 'PENDENTE')
+    statusCnh.value = 'PENDENTE'
+    
+    dispararToast('Perfil de motorista criado com sucesso!', 'success')
+  } catch (error) {
+    dispararToast(error.response?.data || error.response?.data?.erro || 'Erro ao criar perfil de motorista', 'error')
+  } finally {
+    loading.value = false
+  }
 }
 </script>

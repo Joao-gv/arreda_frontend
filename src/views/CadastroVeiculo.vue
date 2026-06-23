@@ -71,10 +71,11 @@
           <div class="pt-6 border-t border-gray-100 mt-6">
             <button 
               type="submit" 
-              class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-lg font-bold text-white bg-arreda-green hover:bg-arreda-dark focus:outline-none transition"
+              :disabled="loading"
+              class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-lg font-bold text-white bg-arreda-green hover:bg-arreda-dark focus:outline-none transition disabled:opacity-50"
             >
               <Save :size="24" />
-              Salvar Veículo
+              {{ loading ? 'Salvando...' : 'Salvar Veículo' }}
             </button>
           </div>
 
@@ -86,10 +87,15 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { Car, Hash, Palette, Tag, Save } from 'lucide-vue-next'
-import api from '../services/api'; // Importa o nosso motor que acabamos de criar
+import { usuarioService } from '../services/usuarioService.js'
+import { useToast } from '../composables/useToast.js'
 
-// No Vue, usamos 'ref' para criar um objeto reativo (estado)
+const { dispararToast } = useToast()
+const router = useRouter()
+const loading = ref(false)
+
 const veiculo = ref({
   placa: '',
   marca: '',
@@ -98,15 +104,17 @@ const veiculo = ref({
 })
 
 const salvarVeiculo = async () => {
+  loading.value = true
   try {
-    // Faz a chamada POST enviando o objeto JSON reativo do carro
-    const response = await api.post('/veiculos', veiculo.value);
+    await usuarioService.cadastrarVeiculo(veiculo.value)
     
-    alert('Veículo salvo com sucesso no banco PostgreSQL!');
-    console.log('Retorno do servidor:', response.data);
+    dispararToast('Veículo salvo com sucesso!', 'success')
+    router.push('/painel-motorista')
   } catch (error) {
-    console.error('Erro ao conectar com o Spring Boot:', error);
-    alert('Falha ao salvar veículo. Verifique se o backend está rodando na porta 8080.');
+    console.error(error)
+    dispararToast(error.response?.data?.erro || error.response?.data || 'Falha ao salvar veículo.', 'error')
+  } finally {
+    loading.value = false
   }
-};
+}
 </script>
