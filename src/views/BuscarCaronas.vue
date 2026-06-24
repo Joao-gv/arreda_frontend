@@ -2,6 +2,24 @@
   <div class="flex-1 bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-5xl mx-auto">
       
+      <Modal v-model:is-open="isModalOpen"  @close="handleModalClose">
+        <template #header>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Encontrar Caronas</h3>
+        </template>
+        <template #body>
+          <p class="text-sm text-gray-500 mb-4">{{ ModalMessage }}</p>
+        </template>
+        <template #footer>
+          <button 
+            class="w-full flex justify-center items-center gap-2 py-4 px-4  border border-transparent rounded-xl shadow-sm text-lg font-bold text-white bg-arreda-green hover:bg-arreda-dark focus:outline-none transition disabled:opacity-50"
+            @click="isModalOpen = false"
+          >
+            Fechar
+          </button>
+        </template>
+      </Modal>
+
+
       <div class="bg-white p-6 rounded-3xl shadow-md border border-gray-100 mb-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">Encontrar Caronas</h2>
         
@@ -44,10 +62,10 @@
             <div class="flex items-center justify-between md:justify-start gap-4 mb-3">
               <div class="flex items-center gap-2">
                 <UserCircle class="text-gray-400" :size="28"/>
-                <span class="font-bold text-gray-800 text-lg">{{ carona.nomeMotorista || 'Motorista' }}</span>
+                <span class="font-bold text-gray-800 text-lg">{{ carona.motoristaNome || 'Motorista' }}</span>
               </div>
               <span class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full flex items-center gap-1">
-                <Star class="text-yellow-500 fill-current" :size="14"/> {{ carona.notaMotorista || '5.0' }}
+                <Star class="text-yellow-500 fill-current" :size="14"/> {{ '5.0' }}
               </span>
             </div>
             
@@ -59,7 +77,7 @@
             
             <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
               <span class="flex items-center gap-1"><Clock :size="16"/> {{ formatarHorario(carona.dataHoraPartida) }}</span>
-              <span class="flex items-center gap-1"><Car :size="16"/> {{ carona.modeloVeiculo || 'Carro' }}</span>
+              <span class="flex items-center gap-1"><Car :size="16"/> {{ carona.veiculoModelo || 'Carro' }}</span>
               <span class="flex items-center gap-1 text-arreda-green font-bold bg-green-50 px-2 py-0.5 rounded"><Users :size="16"/> {{ carona.vagasDisponiveis }} vagas</span>
             </div>
           </div>
@@ -82,11 +100,19 @@ import { ref, onMounted } from 'vue'
 import { useToast } from '../composables/useToast.js'
 import { MapPin, Calendar, Search, UserCircle, Star, ArrowRight, Clock, Car, Users } from 'lucide-vue-next'
 import { caronaService } from '../services/caronaService.js'
+import Modal from './Modal.vue'
 
 const { dispararToast } = useToast()
 const busca = ref({ origem: '', destino: '', data: '' })
 const caronasDisponiveis = ref([])
 const loadingBusca = ref(false)
+const isModalOpen = ref(false)
+const ModalMessage = ref('')
+const errorMessage = ref('')
+
+const handleModalClose = () => {
+  isModalOpen.value = false
+}
 
 const formatarHorario = (dataIso) => {
   if (!dataIso) return '--:--'
@@ -103,6 +129,12 @@ const realizarBusca = async () => {
   } catch (error) {
     dispararToast('Erro ao buscar caronas', 'error')
     console.error(error)
+    const dadosErro = error.response?.data
+    errorMessage.value = Array.isArray(dadosErro) && dadosErro.length > 0
+    ? dadosErro[0].mensagem
+    : (dadosErro?.erro || 'Falha ao buscar caronas.')
+    ModalMessage.value = 'Erro: ' + errorMessage.value
+    isModalOpen.value = true
   } finally {
     loadingBusca.value = false
   }
@@ -112,8 +144,16 @@ const solicitarReserva = async (id) => {
   try {
     await caronaService.solicitar(id)
     dispararToast(`Reserva solicitada para a carona #${id}! O motorista será notificado.`, 'success')
+    ModalMessage.value = 'Reserva solicitada para a carona! O motorista será notificado.'
+    isModalOpen.value = true
   } catch (error) {
     dispararToast(error.response?.data?.erro || error.response?.data || 'Erro ao solicitar reserva', 'error')
+    const dadosErro = error.response?.data
+    errorMessage.value = Array.isArray(dadosErro) && dadosErro.length > 0
+    ? dadosErro[0].mensagem
+    : (dadosErro?.erro || 'Erro ao solicitar reserva.')
+    ModalMessage.value = 'Erro: ' + errorMessage.value
+    isModalOpen.value = true
   }
 }
 

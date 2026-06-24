@@ -3,5 +3,5 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
-  base: '/arreda_frontend/', // Mantém a sua configuração para o GitHub Pages
+  base: '/', // Mantém a sua configuração para o GitHub Pages
 })

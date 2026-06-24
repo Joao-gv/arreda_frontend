@@ -36,7 +36,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('/arreda_frontend/'),
+  history: createWebHistory('/'),
   routes
 })
 
