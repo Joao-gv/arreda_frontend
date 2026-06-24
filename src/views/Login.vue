@@ -11,11 +11,23 @@
             type="email" 
             placeholder="exemplo@academico.ifmg.edu.br" 
             class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-arreda-green"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Senha</label>
+          <input 
+            v-model="senha" 
+            type="password" 
+            placeholder="Sua senha" 
+            class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-arreda-green"
+            required
           />
         </div>
         
-        <button type="submit" class="w-full bg-arreda-green text-white font-bold px-4 py-3 rounded-xl hover:bg-arreda-dark transition">
-          Entrar
+        <button type="submit" :disabled="loading" class="w-full bg-arreda-green text-white font-bold px-4 py-3 rounded-xl hover:bg-arreda-dark transition disabled:opacity-50">
+          {{ loading ? 'Entrando...' : 'Entrar' }}
         </button>
          <div class="mt-6 text-center text-sm text-gray-600">
           Não tem uma conta? 
@@ -31,13 +43,29 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { authService } from '../services/authService'
+import { useToast } from '../composables/useToast'
+import { useAuth } from '../composables/useAuth.js'
 
 const email = ref('')
+const senha = ref('')
+const loading = ref(false)
 const router = useRouter()
+const { dispararToast } = useToast()
+const { setToken, fetchUser } = useAuth()
 
-const handleLogin = () => {
-  console.log('Tentativa de login com:', email.value)
-  // Futuramente, se o login for sucesso e tiver PERFIL-MOTORISTA, mandamos para o Painel!
-  router.push('/')
+const handleLogin = async () => {
+  loading.value = true
+  try {
+    const data = await authService.login(email.value, senha.value)
+    setToken(data.accessToken, data.refreshToken)
+    await fetchUser() // Busca dados e checa se é motorista
+    dispararToast('Login realizado com sucesso!', 'success')
+    router.push('/')
+  } catch (error) {
+    dispararToast(error.response?.data?.erro || error.response?.data || 'Erro ao realizar login', 'error')
+  } finally {
+    loading.value = false
+  }
 }
 </script>

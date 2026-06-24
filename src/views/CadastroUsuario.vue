@@ -53,7 +53,7 @@
             <label class="block text-sm font-bold text-gray-700 mb-1">WhatsApp</label>
             <div class="flex items-center p-3 border border-gray-300 rounded-xl focus-within:ring-2 focus-within:ring-arreda-green transition">
               <Phone class="text-gray-400 mr-3" :size="20" />
-              <input v-model="form.telefone" type="tel" placeholder="(31) 99999-9999" required class="w-full bg-transparent outline-none" />
+              <input v-model="form.telefone" type="tel" placeholder="31999999999" required class="w-full bg-transparent outline-none" />
             </div>
           </div>
 
@@ -121,8 +121,8 @@
           </div>
         </div>
 
-        <button type="submit" class="w-full bg-arreda-green text-white font-bold py-4 rounded-xl hover:bg-arreda-dark transition text-lg shadow-md">
-          Concluir Cadastro
+        <button type="submit" :disabled="loading" class="w-full bg-arreda-green text-white font-bold py-4 rounded-xl hover:bg-arreda-dark transition text-lg shadow-md disabled:opacity-50">
+          {{ loading ? 'Processando...' : 'Concluir Cadastro' }}
         </button>
 
       </form>
@@ -133,12 +133,16 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-// 1. Importe o Toast
 import { useToast } from '../composables/useToast.js'
 import { User, Mail, Phone, IdCard, Lock, Camera } from 'lucide-vue-next'
+import { usuarioService } from '../services/usuarioService.js'
+import { authService } from '../services/authService.js'
+import { useAuth } from '../composables/useAuth.js'
 
 const router = useRouter()
 const { dispararToast } = useToast()
+const { setToken, fetchUser } = useAuth()
+const loading = ref(false)
 
 const form = ref({
   nome: '',
@@ -167,22 +171,37 @@ const removerFoto = () => {
   previewFoto.value = null
 }
 
-const handleCadastro = () => {
+const handleCadastro = async () => {
   if (form.value.senha !== form.value.confirmarSenha) {
-    // 2. Toast Vermelho de erro
     dispararToast('As senhas não coincidem!', 'error')
     return
   }
 
-  // 3. Toast Verde de sucesso
-  dispararToast('Usuário cadastrado com sucesso!', 'success')
+  loading.value = true
+  try {
+    await usuarioService.register({
+      nome: form.value.nome,
+      email: form.value.email,
+      senha: form.value.senha,
+      telefone: form.value.telefone
+    })
 
-  if (form.value.intencao === 'motorista') {
-    localStorage.setItem('@arreda:ehMotorista', 'false')
-    router.push('/seja-motorista')
-  } else {
-    localStorage.setItem('@arreda:ehMotorista', 'false')
-    router.push('/')
+    // Auto-login
+    const data = await authService.login(form.value.email, form.value.senha)
+    setToken(data.accessToken, data.refreshToken)
+    await fetchUser()
+
+    dispararToast('Usuário cadastrado com sucesso!', 'success')
+
+    if (form.value.intencao === 'motorista') {
+      router.push('/seja-motorista')
+    } else {
+      router.push('/')
+    }
+  } catch (error) {
+    dispararToast(error.response?.data || error.response?.data?.erro || 'Erro ao realizar cadastro', 'error')
+  } finally {
+    loading.value = false
   }
 }
 </script>

@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Cria a instância do Axios apontando para o seu backend local em Java Spring Boot
 const api = axios.create({
   baseURL: 'http://localhost:8080/api', // Ajuste a rota base de acordo com as suas Controllers do Spring
   timeout: 10000,
@@ -27,16 +26,43 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor de Resposta: Trata erros globais (como token expirado)
+// Interceptor de Resposta: Trata erros globais e faz o refresh do token
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // Se o backend responder 401 (Não autorizado), limpa o token e chuta o usuário para o Login
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Se o backend responder 401 (Não autorizado) e ainda não tentamos fazer o refresh
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = localStorage.getItem('@arreda:refreshToken');
+        if (refreshToken) {
+          const { data } = await axios.post('http://localhost:8080/api/auth/refresh', {
+            refreshToken
+          });
+
+          localStorage.setItem('@arreda:token', data.accessToken);
+          localStorage.setItem('@arreda:refreshToken', data.refreshToken);
+
+          originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        localStorage.removeItem('@arreda:token');
+        localStorage.removeItem('@arreda:refreshToken');
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
+    }
+
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('@arreda:token');
-      // Força o redirecionamento para a página de login
+      localStorage.removeItem('@arreda:refreshToken');
       window.location.href = '/login';
     }
+    
     return Promise.reject(error);
   }
 );
