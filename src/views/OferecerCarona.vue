@@ -7,6 +7,23 @@
         <p class="mt-2 text-gray-600">Publique sua viagem e ajude outros estudantes do IFMG a chegarem ao campus.</p>
       </div>
 
+      <Modal v-model:is-open="isModalOpen"  @close="handleModalClose">
+        <template #header>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Publicar Carona</h3>
+        </template>
+        <template #body>
+          <p class="text-sm text-gray-500 mb-4">{{ ModalMessage }}</p>
+        </template>
+        <template #footer>
+          <button 
+            class="w-full flex justify-center items-center gap-2 py-4 px-4  border border-transparent rounded-xl shadow-sm text-lg font-bold text-white bg-arreda-green hover:bg-arreda-dark focus:outline-none transition disabled:opacity-50"
+            @click="isModalOpen = false"
+          >
+            Fechar
+          </button>
+        </template>
+      </Modal>
+
       <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
         <form @submit.prevent="publicarCarona" class="space-y-6">
           
@@ -33,7 +50,7 @@
               <label class="block text-sm font-bold text-gray-700 mb-2">Data e Hora de Partida</label>
               <div class="flex items-center p-3 border border-gray-300 rounded-xl focus-within:ring-2 focus-within:ring-arreda-green transition">
                 <CalendarClock class="text-gray-400 mr-3" :size="24" />
-                <input v-model="carona.dataHoraPartida" type="datetime-local" required class="w-full bg-transparent outline-none text-gray-700" />
+                <input v-model="carona.datahoraPartida" type="datetime-local" required class="w-full bg-transparent outline-none text-gray-700" />
               </div>
             </div>
 
@@ -41,7 +58,7 @@
               <label class="block text-sm font-bold text-gray-700 mb-2">Vagas Disponíveis</label>
               <div class="flex items-center p-3 border border-gray-300 rounded-xl focus-within:ring-2 focus-within:ring-arreda-green transition">
                 <Users class="text-gray-400 mr-3" :size="24" />
-                <input v-model="carona.vagasDisponiveis" type="number" min="1" max="7" placeholder="Ex: 3" required class="w-full bg-transparent outline-none" />
+                <input v-model="carona.vagas" type="number" min="1" max="7" placeholder="Ex: 3" required class="w-full bg-transparent outline-none" />
               </div>
             </div>
           </div>
@@ -69,7 +86,7 @@
           </div>
 
           <div class="pt-6 border-t border-gray-100 mt-6">
-            <button type="submit" :disabled="loading || veiculos.length === 0" class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-lg font-bold text-white bg-arreda-green hover:bg-arreda-dark focus:outline-none transition disabled:opacity-50">
+            <button @click="publicarCarona" type="submit" :disabled="loading || veiculos.length === 0" class="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-lg font-bold text-white bg-arreda-green hover:bg-arreda-dark focus:outline-none transition disabled:opacity-50">
               <CheckCircle :size="24" />
               {{ loading ? 'Publicando...' : 'Publicar Carona' }}
             </button>
@@ -88,12 +105,20 @@ import { useToast } from '../composables/useToast.js'
 import { MapPin, CalendarClock, Users, Banknote, Car, CheckCircle } from 'lucide-vue-next'
 import { caronaService } from '../services/caronaService.js'
 import { usuarioService } from '../services/usuarioService.js'
+import Modal from './Modal.vue'
 
 const { dispararToast } = useToast()
 const router = useRouter()
-const carona = ref({ origem: '', destino: '', dataHoraPartida: '', vagasDisponiveis: '', valorSugerido: '', veiculoId: '' })
+const carona = ref({ origem: '', destino: '', datahoraPartida: '', vagas: '', valorSugerido: '', veiculoId: '' })
 const veiculos = ref([])
 const loading = ref(false)
+const isModalOpen = ref(false)
+const ModalMessage = ref('')
+const errorMessage = ref('')
+
+const handleModalClose = () => {
+  isModalOpen.value = false
+}
 
 const carregarVeiculos = async () => {
   try {
@@ -110,8 +135,20 @@ const publicarCarona = async () => {
     await caronaService.publicar(carona.value)
     dispararToast('Sua carona foi publicada com sucesso!', 'success')
     router.push('/minhas-reservas')
+    console.log('Carona publicada com sucesso:', carona.value)
+    ModalMessage.value = 'Carona publicada com sucesso!'
+    isModalOpen.value = true
+
   } catch (error) {
     dispararToast(error.response?.data?.erro || error.response?.data || 'Erro ao publicar carona', 'error')
+    console.log('Carona não publicada:', carona.value)
+    const dadosErro = error.response?.data
+    errorMessage.value = Array.isArray(dadosErro) && dadosErro.length > 0
+    ? dadosErro[0].mensagem
+    : (dadosErro?.erro || 'Falha ao publicar carona.')
+    ModalMessage.value = 'Erro: ' + errorMessage.value
+    isModalOpen.value = true
+
   } finally {
     loading.value = false
   }
