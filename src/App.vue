@@ -9,5 +9,15 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import Navbar from './components/Navbar.vue';
+import { useAuth } from './composables/useAuth.js'
+
+const { fetchUser, isAuthenticated } = useAuth()
+
+onMounted(() => {
+  if (isAuthenticated.value) {
+    fetchUser()
+  }
+})
 </script>
