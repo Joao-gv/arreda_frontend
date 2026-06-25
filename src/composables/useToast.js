@@ -20,6 +20,6 @@ export function useToast() {
     exibir,
     mensagem,
     tipo,
-    dispararToast
+    dispararToast,
   }
 }

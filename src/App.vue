@@ -5,6 +5,8 @@
     <main class="flex-1 flex flex-col">
       <router-view></router-view>
     </main>
+
+    <Toast />
   </div>
 </template>
 
@@ -12,6 +14,7 @@
 import { onMounted } from 'vue'
 import Navbar from './components/Navbar.vue';
 import { useAuth } from './composables/useAuth.js'
+import Toast from './views/Toast.vue'
 
 const { fetchUser, isAuthenticated } = useAuth()
 

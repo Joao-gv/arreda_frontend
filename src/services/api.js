@@ -1,24 +1,19 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api', // Ajuste a rota base de acordo com as suas Controllers do Spring
+  baseURL: 'http://localhost:8080/api', 
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   }
 });
 
-// Interceptor de Requisição: Injeta o token JWT automaticamente em cada chamada
 api.interceptors.request.use(
   (config) => {
-    // Busca o token que salvamos no localStorage (o mesmo do nosso "truque" de bypass)
     const token = localStorage.getItem('@arreda:token');
-    
     if (token) {
-      // Padrão de mercado: insere o token no cabeçalho HTTP Bearer
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
     return config;
   },
   (error) => {
@@ -26,11 +21,19 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor de Resposta: Trata erros globais e faz o refresh do token
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // 1. ADICIONE ESTA VERIFICAÇÃO
+    // Ajuste a string '/auth/login' para bater exatamente com a URL que seu authService.login chama
+    const isLoginRequest = originalRequest.url.includes('/login'); 
+
+    // 2. SE FOR A ROTA DE LOGIN, IGNORA O RESTO DO INTERCEPTOR E DEVOLVE O ERRO
+    if (error.response && error.response.status === 401 && isLoginRequest) {
+      return Promise.reject(error);
+    }
 
     // Se o backend responder 401 (Não autorizado) e ainda não tentamos fazer o refresh
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
@@ -57,6 +60,7 @@ api.interceptors.response.use(
       }
     }
 
+    // Se for 401 definitivo (não é login e o refresh falhou)
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('@arreda:token');
       localStorage.removeItem('@arreda:refreshToken');
