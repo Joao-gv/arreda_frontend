@@ -7,23 +7,6 @@
         <p class="mt-2 text-gray-600">Publique sua viagem e ajude outros estudantes do IFMG a chegarem ao campus.</p>
       </div>
 
-      <Modal v-model:is-open="isModalOpen"  @close="handleModalClose">
-        <template #header>
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Publicar Carona</h3>
-        </template>
-        <template #body>
-          <p class="text-sm text-gray-500 mb-4">{{ ModalMessage }}</p>
-        </template>
-        <template #footer>
-          <button 
-            class="w-full flex justify-center items-center gap-2 py-4 px-4  border border-transparent rounded-xl shadow-sm text-lg font-bold text-white bg-arreda-green hover:bg-arreda-dark focus:outline-none transition disabled:opacity-50"
-            @click="isModalOpen = false"
-          >
-            Fechar
-          </button>
-        </template>
-      </Modal>
-
       <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
         <form @submit.prevent="publicarCarona" class="space-y-6">
           
@@ -105,7 +88,6 @@ import { useToast } from '../composables/useToast.js'
 import { MapPin, CalendarClock, Users, Banknote, Car, CheckCircle } from 'lucide-vue-next'
 import { caronaService } from '../services/caronaService.js'
 import { usuarioService } from '../services/usuarioService.js'
-import Modal from './Modal.vue'
 
 const { dispararToast } = useToast()
 const router = useRouter()
@@ -116,16 +98,12 @@ const isModalOpen = ref(false)
 const ModalMessage = ref('')
 const errorMessage = ref('')
 
-const handleModalClose = () => {
-  isModalOpen.value = false
-}
-
 const carregarVeiculos = async () => {
   try {
     veiculos.value = await usuarioService.getMeusVeiculos()
   } catch (error) {
     dispararToast('Erro ao carregar veículos. Você tem perfil de motorista?', 'error')
-    console.error(error)
+    console.error(error.response?.data || error)
   }
 }
 
@@ -135,19 +113,9 @@ const publicarCarona = async () => {
     await caronaService.publicar(carona.value)
     dispararToast('Sua carona foi publicada com sucesso!', 'success')
     router.push('/minhas-reservas')
-    console.log('Carona publicada com sucesso:', carona.value)
-    ModalMessage.value = 'Carona publicada com sucesso!'
-    isModalOpen.value = true
 
   } catch (error) {
     dispararToast(error.response?.data?.erro || error.response?.data || 'Erro ao publicar carona', 'error')
-    console.log('Carona não publicada:', carona.value)
-    const dadosErro = error.response?.data
-    errorMessage.value = Array.isArray(dadosErro) && dadosErro.length > 0
-    ? dadosErro[0].mensagem
-    : (dadosErro?.erro || 'Falha ao publicar carona.')
-    ModalMessage.value = 'Erro: ' + errorMessage.value
-    isModalOpen.value = true
 
   } finally {
     loading.value = false

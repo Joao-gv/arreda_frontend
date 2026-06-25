@@ -8,8 +8,9 @@
       </div>
 
       <form @submit.prevent="handleCadastro" class="space-y-6">
-        
-        <div class="flex flex-col items-center justify-center mb-6">
+
+        <!--
+        <<div class="flex flex-col items-center justify-center mb-6">
           <label class="block text-sm font-bold text-gray-700 mb-2">Foto de Perfil</label>
           
           <div class="relative group w-32 h-32 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden bg-gray-50 hover:border-arreda-green transition">
@@ -30,7 +31,7 @@
               Alterar Foto
             </button>
           </div>
-        </div>
+        </di> -->
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="md:col-span-2">
@@ -57,6 +58,7 @@
             </div>
           </div>
 
+          <!--
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-1">CPF</label>
             <div class="flex items-center p-3 border border-gray-300 rounded-xl focus-within:ring-2 focus-within:ring-arreda-green transition">
@@ -64,6 +66,7 @@
               <input v-model="form.cpf" type="text" maxlength="11" placeholder="Apenas números" required class="w-full bg-transparent outline-none" />
             </div>
           </div>
+          -->
 
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-1">O que você é no IFMG?</label>
@@ -75,7 +78,9 @@
               </select>
             </div>
           </div>
+          
         </div>
+        
 
         <div class="pt-4 border-t border-gray-100">
           <label class="block text-base font-bold text-gray-800 mb-3 text-center">Como você pretende utilizar o Arreda!?</label>
@@ -138,6 +143,7 @@ import { User, Mail, Phone, IdCard, Lock, Camera } from 'lucide-vue-next'
 import { usuarioService } from '../services/usuarioService.js'
 import { authService } from '../services/authService.js'
 import { useAuth } from '../composables/useAuth.js'
+import Toast from './Toast.vue'
 
 const router = useRouter()
 const { dispararToast } = useToast()
@@ -199,7 +205,11 @@ const handleCadastro = async () => {
       router.push('/')
     }
   } catch (error) {
-    dispararToast(error.response?.data || error.response?.data?.erro || 'Erro ao realizar cadastro', 'error')
+    const dadosErro = error.response?.data
+    const errorMessage = Array.isArray(dadosErro) && dadosErro.length > 0
+    ? dadosErro[0].mensagem
+    : (dadosErro?.erro || 'Erro ao realizar cadastro.')
+    dispararToast(errorMessage, 'error')
   } finally {
     loading.value = false
   }

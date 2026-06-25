@@ -1,0 +1,1 @@
+export const API_BASE_URL = 'http://localhost:8080/api'; // Ajuste a rota base de acordo com as suas Controllers do Spring

@@ -2,24 +2,6 @@
   <div class="flex-1 bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-5xl mx-auto">
       
-      <Modal v-model:is-open="isModalOpen"  @close="handleModalClose">
-        <template #header>
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Encontrar Caronas</h3>
-        </template>
-        <template #body>
-          <p class="text-sm text-gray-500 mb-4">{{ ModalMessage }}</p>
-        </template>
-        <template #footer>
-          <button 
-            class="w-full flex justify-center items-center gap-2 py-4 px-4  border border-transparent rounded-xl shadow-sm text-lg font-bold text-white bg-arreda-green hover:bg-arreda-dark focus:outline-none transition disabled:opacity-50"
-            @click="isModalOpen = false"
-          >
-            Fechar
-          </button>
-        </template>
-      </Modal>
-
-
       <div class="bg-white p-6 rounded-3xl shadow-md border border-gray-100 mb-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">Encontrar Caronas</h2>
         
@@ -100,19 +82,13 @@ import { ref, onMounted } from 'vue'
 import { useToast } from '../composables/useToast.js'
 import { MapPin, Calendar, Search, UserCircle, Star, ArrowRight, Clock, Car, Users } from 'lucide-vue-next'
 import { caronaService } from '../services/caronaService.js'
-import Modal from './Modal.vue'
+
 
 const { dispararToast } = useToast()
 const busca = ref({ origem: '', destino: '', data: '' })
 const caronasDisponiveis = ref([])
 const loadingBusca = ref(false)
-const isModalOpen = ref(false)
-const ModalMessage = ref('')
-const errorMessage = ref('')
 
-const handleModalClose = () => {
-  isModalOpen.value = false
-}
 
 const formatarHorario = (dataIso) => {
   if (!dataIso) return '--:--'
@@ -129,12 +105,6 @@ const realizarBusca = async () => {
   } catch (error) {
     dispararToast('Erro ao buscar caronas', 'error')
     console.error(error)
-    const dadosErro = error.response?.data
-    errorMessage.value = Array.isArray(dadosErro) && dadosErro.length > 0
-    ? dadosErro[0].mensagem
-    : (dadosErro?.erro || 'Falha ao buscar caronas.')
-    ModalMessage.value = 'Erro: ' + errorMessage.value
-    isModalOpen.value = true
   } finally {
     loadingBusca.value = false
   }
@@ -144,16 +114,8 @@ const solicitarReserva = async (id) => {
   try {
     await caronaService.solicitar(id)
     dispararToast(`Reserva solicitada para a carona #${id}! O motorista será notificado.`, 'success')
-    ModalMessage.value = 'Reserva solicitada para a carona! O motorista será notificado.'
-    isModalOpen.value = true
   } catch (error) {
     dispararToast(error.response?.data?.erro || error.response?.data || 'Erro ao solicitar reserva', 'error')
-    const dadosErro = error.response?.data
-    errorMessage.value = Array.isArray(dadosErro) && dadosErro.length > 0
-    ? dadosErro[0].mensagem
-    : (dadosErro?.erro || 'Erro ao solicitar reserva.')
-    ModalMessage.value = 'Erro: ' + errorMessage.value
-    isModalOpen.value = true
   }
 }
 

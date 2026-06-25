@@ -63,7 +63,20 @@ const handleLogin = async () => {
     dispararToast('Login realizado com sucesso!', 'success')
     router.push('/')
   } catch (error) {
-    dispararToast(error.response?.data?.erro || error.response?.data || 'Erro ao realizar login', 'error')
+    const dadosErro = error.response?.data;
+
+    let errorMessage = 'Erro ao realizar login.';
+    
+    if (dadosErro) {
+      if (Array.isArray(dadosErro) && dadosErro.length > 0) {
+        errorMessage = dadosErro[0].mensagem || errorMessage;
+      } else if (dadosErro.erro) {
+        errorMessage = dadosErro.erro;
+      } else if (dadosErro.message) {
+        errorMessage = dadosErro.message;
+      }
+    }
+    dispararToast(errorMessage, 'error')
   } finally {
     loading.value = false
   }
