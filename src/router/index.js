@@ -8,11 +8,15 @@ import MinhasReservas from '../views/MinhasReservas.vue'
 import CadastroMotorista from '../views/CadastroMotorista.vue'
 import CadastroUsuario from '../views/CadastroUsuario.vue' 
 import Admin from '../views/Admin.vue' // No topo
+import VerifiqueEmail from '../views/VerifiqueEmail.vue'
+import ConfirmarEmail from '../views/ConfirmarEmail.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
   { path: '/login', name: 'Login', component: Login, meta: { unauthenticatedOnly: true } },
   { path: '/cadastro', name: 'CadastroUsuario', component: CadastroUsuario, meta: { unauthenticatedOnly: true } }, 
+  { path: '/verifique-email', name: 'VerifiqueEmail', component: VerifiqueEmail, meta: { unauthenticatedOnly: true } },
+  { path: '/confirmar-email', name: 'ConfirmarEmail', component: ConfirmarEmail }, // link do e-mail: ?token=...
   { path: '/buscar-caronas', name: 'BuscarCaronas', component: BuscarCaronas }, // Qualquer um busca
   { path: '/admin', name: 'AdminControl', component: Admin }, // Admin temporário sem restrição severa
   
