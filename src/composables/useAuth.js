@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { usuarioService } from '../services/usuarioService'
+import { usuarioService } from '../services/usuarioService.js'
 
 const token = ref(localStorage.getItem('@arreda:token') || null)
 const user = ref(null)
@@ -51,6 +51,7 @@ export const useAuth = () => {
     isAuthenticated,
     isDriver,
     setToken,
+    clearAuth,
     fetchUser,
     logout
   }
