@@ -16,6 +16,16 @@ export const authService = {
     return response.data; // { mensagem }
   },
 
+  async esqueciSenha(email) {
+    const response = await api.post('/auth/esqueci-senha', { email });
+    return response.data; // { mensagem } — resposta neutra, exista ou não a conta
+  },
+
+  async redefinirSenha(token, novaSenha) {
+    const response = await api.post('/auth/redefinir-senha', { token, novaSenha });
+    return response.data; // { mensagem }
+  },
+
   logout() {
     localStorage.removeItem('@arreda:token');
     localStorage.removeItem('@arreda:refreshToken');
