@@ -141,13 +141,10 @@ import { useRouter } from 'vue-router'
 import { useToast } from '../composables/useToast.js'
 import { User, Mail, Phone, IdCard, Lock, Camera } from 'lucide-vue-next'
 import { usuarioService } from '../services/usuarioService.js'
-import { authService } from '../services/authService.js'
-import { useAuth } from '../composables/useAuth.js'
 import Toast from './Toast.vue'
 
 const router = useRouter()
 const { dispararToast } = useToast()
-const { setToken, fetchUser } = useAuth()
 const loading = ref(false)
 
 const form = ref({
@@ -192,18 +189,9 @@ const handleCadastro = async () => {
       telefone: form.value.telefone
     })
 
-    // Auto-login
-    const data = await authService.login(form.value.email, form.value.senha)
-    setToken(data.accessToken, data.refreshToken)
-    await fetchUser()
-
-    dispararToast('Usuário cadastrado com sucesso!', 'success')
-
-    if (form.value.intencao === 'motorista') {
-      router.push('/seja-motorista')
-    } else {
-      router.push('/')
-    }
+    // O login só é liberado após a confirmação do e-mail; o e-mail vai pelo state, não pela URL.
+    dispararToast('Cadastro realizado! Confirme seu e-mail para entrar.', 'success')
+    router.push({ name: 'VerifiqueEmail', state: { email: form.value.email.trim() } })
   } catch (error) {
     const dadosErro = error.response?.data
     const errorMessage = Array.isArray(dadosErro) && dadosErro.length > 0
