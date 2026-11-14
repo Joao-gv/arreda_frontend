@@ -20,9 +20,12 @@
 
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-1">E-mail Acadêmico</label>
+          <label for="login-email" class="block text-sm font-bold text-gray-700 mb-1">E-mail Acadêmico</label>
           <input 
             v-model="email" 
+            id="login-email"
+            name="email"
+            autocomplete="email"
             type="email" 
             placeholder="exemplo@academico.ifmg.edu.br" 
             class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-arreda-green"
@@ -31,16 +34,24 @@
         </div>
 
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-1">Senha</label>
+          <label for="login-senha" class="block text-sm font-bold text-gray-700 mb-1">Senha</label>
           <input 
             v-model="senha" 
+            id="login-senha"
+            name="senha"
+            autocomplete="current-password"
             type="password" 
             placeholder="Sua senha" 
             class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-arreda-green"
             required
           />
+          <div class="flex justify-end">
+            <router-link to="/esqueci-senha" class="text-sm text-arreda-green font-bold hover:underline">
+              Esqueci minha senha
+            </router-link>
+          </div>
         </div>
-        
+
         <button type="submit" :disabled="loading" class="w-full bg-arreda-green text-white font-bold px-4 py-3 rounded-xl hover:bg-arreda-dark transition disabled:opacity-50">
           {{ loading ? 'Entrando...' : 'Entrar' }}
         </button>

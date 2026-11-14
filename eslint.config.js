@@ -18,4 +18,11 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    // Testes unitários rodam no Node (node <arquivo>), não no navegador
+    files: ['src/**/*.test.js'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])
