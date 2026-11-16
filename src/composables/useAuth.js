@@ -23,17 +23,21 @@ export const useAuth = () => {
     user.value = null
   }
 
+  const setUser = (newUser) => {
+    user.value = newUser
+    if (newUser?.ehMotorista) {
+      localStorage.setItem('@arreda:ehMotorista', 'true')
+      localStorage.setItem('@arreda:statusCnh', 'APROVADO')
+    } else if (newUser) {
+      localStorage.setItem('@arreda:ehMotorista', 'false')
+    }
+  }
+
   const fetchUser = async () => {
     if (!token.value) return
     try {
       const data = await usuarioService.getMe()
-      user.value = data
-      if (data.ehMotorista) {
-        localStorage.setItem('@arreda:ehMotorista', 'true')
-        localStorage.setItem('@arreda:statusCnh', 'APROVADO') // mock para UI
-      } else {
-        localStorage.setItem('@arreda:ehMotorista', 'false')
-      }
+      setUser(data)
     } catch (error) {
       console.error('Erro ao buscar usuário logado', error)
       clearAuth() // Se o token for invalido/expirado
@@ -50,6 +54,7 @@ export const useAuth = () => {
     user,
     isAuthenticated,
     isDriver,
+    setUser,
     setToken,
     clearAuth,
     fetchUser,

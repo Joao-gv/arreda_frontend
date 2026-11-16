@@ -12,6 +12,7 @@ import VerifiqueEmail from '../views/VerifiqueEmail.vue'
 import ConfirmarEmail from '../views/ConfirmarEmail.vue'
 import EsqueciSenha from '../views/EsqueciSenha.vue'
 import RedefinirSenha from '../views/RedefinirSenha.vue'
+import Perfil from '../views/Perfil.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -21,6 +22,7 @@ const routes = [
   { path: '/confirmar-email', name: 'ConfirmarEmail', component: ConfirmarEmail }, // link do e-mail: ?token=...
   { path: '/esqueci-senha', name: 'EsqueciSenha', component: EsqueciSenha },
   { path: '/redefinir-senha', name: 'RedefinirSenha', component: RedefinirSenha },
+  { path: '/perfil', name: 'Perfil', component: Perfil, meta: { requiresAuth: true } },
   { path: '/buscar-caronas', name: 'BuscarCaronas', component: BuscarCaronas }, // Qualquer um busca
   { path: '/admin', name: 'AdminControl', component: Admin }, // Admin temporário sem restrição severa
   

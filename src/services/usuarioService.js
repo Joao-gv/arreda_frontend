@@ -1,4 +1,5 @@
 import api from './api.js';
+import { API_BASE_URL } from '../environments/environments.js';
 
 export const usuarioService = {
   async register(usuarioCreateDTO) {
@@ -29,5 +30,29 @@ export const usuarioService = {
   async getMe() {
     const response = await api.get('/usuarios/me');
     return response.data;
+  },
+
+  async atualizarPerfil(dados) {
+    const response = await api.put('/usuarios/me', dados);
+    return response.data;
+  },
+
+  async enviarFotoPerfil(arquivo, onUploadProgress) {
+    const dados = new FormData();
+    dados.append('foto', arquivo);
+
+    const response = await api.post('/usuarios/me/foto', dados, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress
+    });
+    return response.data;
+  },
+
+  async removerFotoPerfil() {
+    await api.delete('/usuarios/me/foto');
+  },
+
+  fotoUrlPorId(id) {
+    return id ? `${API_BASE_URL}/usuarios/${id}/foto` : null;
   }
 };

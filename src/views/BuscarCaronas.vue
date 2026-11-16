@@ -43,7 +43,7 @@
           <div class="flex-1 w-full">
             <div class="flex items-center justify-between md:justify-start gap-4 mb-3">
               <div class="flex items-center gap-2">
-                <UserCircle class="text-gray-400" :size="28"/>
+                <AvatarUsuario :nome="carona.motoristaNome || 'Motorista'" :foto-url="obterFotoUrl(carona.motoristaId)" :size="36" />
                 <span class="font-bold text-gray-800 text-lg">{{ carona.motoristaNome || 'Motorista' }}</span>
               </div>
               <span class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full flex items-center gap-1">
@@ -80,14 +80,24 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useToast } from '../composables/useToast.js'
-import { MapPin, Calendar, Search, UserCircle, Star, ArrowRight, Clock, Car, Users } from 'lucide-vue-next'
+import { MapPin, Calendar, Search, Star, ArrowRight, Clock, Car, Users } from 'lucide-vue-next'
 import { caronaService } from '../services/caronaService.js'
+import AvatarUsuario from '../components/AvatarUsuario.vue'
+import { useAuth } from '../composables/useAuth.js'
+import { usuarioService } from '../services/usuarioService.js'
 
 
 const { dispararToast } = useToast()
+const { user } = useAuth()
 const busca = ref({ origem: '', destino: '', data: '' })
 const caronasDisponiveis = ref([])
 const loadingBusca = ref(false)
+
+const obterFotoUrl = (idUsuario) => {
+  if (!idUsuario) return null
+  if (idUsuario === user.value?.id) return user.value.fotoUrl
+  return usuarioService.fotoUrlPorId(idUsuario)
+}
 
 
 const formatarHorario = (dataIso) => {
