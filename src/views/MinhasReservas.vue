@@ -42,6 +42,7 @@
               <span class="text-gray-500 text-sm flex items-center gap-1"><CalendarClock :size="14"/> {{ formatarData(reserva.dataHoraPartida) }}</span>
             </div>
             <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <AvatarUsuario :nome="reserva.nomeMotorista || 'Motorista'" :foto-url="obterFotoUrl(reserva.idMotorista)" :size="36" />
               <Car :size="20" class="text-gray-400"/> Carona com {{ reserva.nomeMotorista }}
             </h3>
             <p class="text-gray-600 mt-1 flex items-center gap-2">
@@ -61,6 +62,7 @@
         <div v-for="carona in historico.comoMotorista" :key="carona.idCarona" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-50">
             <div class="flex items-center gap-4">
+              <AvatarUsuario :nome="user?.nome || 'Você'" :foto-url="user?.fotoUrl" :size="44" />
               <div>
                 <div class="flex items-center gap-2 mb-2">
                   <span class="bg-arreda-light text-arreda-dark px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
@@ -94,7 +96,7 @@
             <ul v-else class="space-y-3">
               <li v-for="participacao in participacoesData[carona.idCarona]" :key="participacao.idParticipacao" class="bg-white p-4 rounded-xl border border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
-                  <UserCircle :size="32" class="text-gray-400" />
+                  <AvatarUsuario :nome="participacao.nomePassageiro || 'Passageiro'" :foto-url="obterFotoUrl(participacao.idPassageiro)" :size="40" />
                   <div>
                     <span class="block font-bold text-gray-800">{{ participacao.nomePassageiro }}</span>
                     <span :class="obterCorStatus(participacao.status)" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mt-1 inline-block">
@@ -125,11 +127,14 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import { useToast } from '../composables/useToast.js'
-import { Car, ArrowRight, CalendarClock, CheckCircle, XCircle, UserCircle, Inbox, Users } from 'lucide-vue-next'
+import { Car, ArrowRight, CalendarClock, CheckCircle, XCircle, Inbox, Users } from 'lucide-vue-next'
 import { usuarioService } from '../services/usuarioService.js'
 import { caronaService } from '../services/caronaService.js'
+import AvatarUsuario from '../components/AvatarUsuario.vue'
+import { useAuth } from '../composables/useAuth.js'
 
 const { dispararToast } = useToast()
+const { user } = useAuth()
 const abaAtiva = ref('passageiro')
 const loading = ref(false)
 
@@ -141,6 +146,12 @@ const historico = ref({
 const participacoesVisiveis = reactive({})
 const participacoesData = reactive({})
 const carregandoParticipacoes = reactive({})
+
+const obterFotoUrl = (idUsuario) => {
+  if (!idUsuario) return null
+  if (idUsuario === user.value?.id) return user.value.fotoUrl
+  return usuarioService.fotoUrlPorId(idUsuario)
+}
 
 const formatarData = (dataIso) => {
   if (!dataIso) return ''
