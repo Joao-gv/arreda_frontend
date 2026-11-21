@@ -121,6 +121,8 @@
             </div>
           </form>
         </section>
+
+        <ExcluirConta />
       </div>
     </div>
   </section>
@@ -130,6 +132,7 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { ImagePlus, Save } from 'lucide-vue-next'
 import AvatarUsuario from '../components/AvatarUsuario.vue'
+import ExcluirConta from '../components/ExcluirConta.vue'
 import { useAuth } from '../composables/useAuth.js'
 import { useToast } from '../composables/useToast.js'
 import { usuarioService } from '../services/usuarioService.js'

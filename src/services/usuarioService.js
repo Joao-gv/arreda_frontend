@@ -52,6 +52,11 @@ export const usuarioService = {
     await api.delete('/usuarios/me/foto');
   },
 
+  async excluirConta(senha) {
+    // No axios, o corpo de um DELETE vai na opção "data", e não no segundo parâmetro.
+    await api.delete('/usuarios/me', { data: { senha } });
+  },
+
   fotoUrlPorId(id) {
     return id ? `${API_BASE_URL}/usuarios/${id}/foto` : null;
   }
